@@ -22,7 +22,7 @@
 	// Enable Lint and format using Biome
 	"biome.enabled": true,
 	"[typescript]": {
-		"editor.defaultFormatter": "biomejs.biome"
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"[typescriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
@@ -32,5 +32,9 @@
 	},
 	"[json]": {
 		"editor.defaultFormatter": "biomejs.biome"
-	}
+	},
+	"i18n-ally.localesPaths": [
+		"locales",
+		"webview-ui/src/components/chat/chat-view/components/messages"
+	]
 }

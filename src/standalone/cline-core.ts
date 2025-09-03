@@ -7,12 +7,28 @@ import { WebviewProvider } from "@/core/webview"
 import { AuthHandler } from "@/hosts/external/AuthHandler"
 import { HostProvider } from "@/hosts/host-provider"
 import { DiffViewProvider } from "@/integrations/editor/DiffViewProvider"
+import { ClineHostBridge } from "./hostbridge-api"
 import { startProtobusService, waitForHostBridgeReady } from "./protobus-service"
 import { log } from "./utils"
 import { extensionContext } from "./vscode-context"
 
+// Global hostbridge instance
+let hostbridge: ClineHostBridge | null = null
+
 async function main() {
 	log("\n\n\nStarting cline-core service...\n\n\n")
+
+	// Start API server FIRST if in API mode (it provides the hostbridge)
+	if (process.env.API_MODE === "true" || process.env.STANDALONE_MODE === "true") {
+		log("Starting Cline API Server...")
+		try {
+			hostbridge = new ClineHostBridge()
+			await hostbridge.start()
+			log("✅ API Server ready!")
+		} catch (err) {
+			log(`Warning: Could not start API server: ${err}`)
+		}
+	}
 
 	try {
 		await waitForHostBridgeReady()
@@ -30,6 +46,12 @@ async function main() {
 	const webviewProvider = await initialize(extensionContext)
 
 	AuthHandler.getInstance().setEnabled(true)
+
+	// Connect the controller to the API if hostbridge is running
+	if (hostbridge && webviewProvider.controller) {
+		hostbridge.setClineController(webviewProvider.controller)
+		log("✅ API Controller connected to Cline")
+	}
 
 	startProtobusService(webviewProvider.controller)
 }
@@ -75,15 +97,20 @@ function setupGlobalErrorHandlers() {
 	})
 
 	// Graceful shutdown handlers
-	process.on("SIGINT", () => {
+	process.on("SIGINT", async () => {
 		log("Received SIGINT, shutting down gracefully...")
+		if (hostbridge) {
+			await hostbridge.stop()
+		}
 		process.exit(0)
 	})
 
-	process.on("SIGTERM", () => {
+	process.on("SIGTERM", async () => {
 		log("Received SIGTERM, shutting down gracefully...")
 		tearDown()
-
+		if (hostbridge) {
+			await hostbridge.stop()
+		}
 		process.exit(0)
 	})
 }

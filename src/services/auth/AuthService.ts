@@ -107,7 +107,7 @@ export class AuthService {
 				console.warn("Extension context was not provided to AuthService.getInstance, using default context")
 				controller = {} as Controller
 			}
-			if (process.env.E2E_TEST) {
+			if (process.env.E2E_TEST || process.env.STANDALONE_MODE === "true") {
 				// Use require instead of import to avoid circular dependency issues
 				// eslint-disable-next-line @typescript-eslint/no-var-requires
 				const { AuthServiceMock } = require("./AuthServiceMock")

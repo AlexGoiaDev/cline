@@ -9,8 +9,8 @@ export class AuthServiceMock extends AuthService {
 	protected constructor(controller: Controller) {
 		super(controller)
 
-		if (process?.env?.CLINE_ENVIRONMENT !== "local") {
-			throw new Error("AuthServiceMock should only be used in local environment for testing purposes.")
+		if (process?.env?.CLINE_ENVIRONMENT !== "local" && process?.env?.STANDALONE_MODE !== "true") {
+			throw new Error("AuthServiceMock should only be used in local environment or standalone mode for testing purposes.")
 		}
 
 		this._config = { URI: clineEnvConfig.apiBaseUrl }

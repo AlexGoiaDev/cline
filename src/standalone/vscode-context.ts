@@ -16,7 +16,8 @@ const INSTALL_DIR = process.env.INSTALL_DIR || path.join(CLINE_DIR, "core", VERS
 mkdirSync(DATA_DIR, { recursive: true })
 log("Using settings dir:", DATA_DIR)
 
-const EXTENSION_DIR = path.join(INSTALL_DIR, "extension")
+// Fix: Use current working directory for standalone mode, or extension subdir for installed mode
+const EXTENSION_DIR = process.env.STANDALONE_MODE === "true" ? process.cwd() : path.join(INSTALL_DIR, "extension")
 const EXTENSION_MODE = process.env.IS_DEV === "true" ? ExtensionMode.Development : ExtensionMode.Production
 
 const extension: Extension<void> = {

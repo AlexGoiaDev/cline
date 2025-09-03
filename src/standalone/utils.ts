@@ -20,7 +20,15 @@ const log = (...args: unknown[]) => {
 
 function getPackageDefinition() {
 	// Load service definitions.
-	const descriptorSet = fs.readFileSync("proto/descriptor_set.pb")
+	// In standalone mode, look for compiled proto descriptor in dist-standalone
+	const descriptorPath =
+		process.env.STANDALONE_MODE === "true" ? "dist-standalone/proto/descriptor_set.pb" : "proto/descriptor_set.pb"
+
+	if (!fs.existsSync(descriptorPath)) {
+		throw new Error(`Proto descriptor not found at ${descriptorPath}. Please run 'npm run compile-standalone' first.`)
+	}
+
+	const descriptorSet = fs.readFileSync(descriptorPath)
 	const options = { longs: Number } // Encode int64 fields as numbers
 	const descriptorDefs = protoLoader.loadFileDescriptorSetFromBuffer(descriptorSet, options)
 	const healthDef = protoLoader.loadSync(health.protoPath)
