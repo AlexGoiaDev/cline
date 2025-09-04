@@ -6,9 +6,9 @@ import express, { NextFunction, Request, Response } from "express"
 import * as health from "grpc-health-check"
 import { createServer } from "http"
 import * as os from "os"
-// @ts-ignore - proto-utils.mjs no tiene tipos TypeScript
 import "dotenv/config"
 import { ApiProvider } from "@/shared/api"
+// @ts-ignore - proto-utils.mjs no tiene tipos TypeScript
 import { getPackageDefinition } from "../../scripts/proto-utils.mjs"
 import { host } from "../generated/grpc-js/index"
 import { log } from "./utils"
